@@ -83,21 +83,21 @@ scripts (see below).
 ### Exact SDRG (ground state)
 
 ```bash
-python sdrg_ground_state/sdrg_entropy.py
-python sdrg_ground_state/plot_entropy.py
+python sdrg_entropy.py
+python plot_entropy.py
 ```
 
 ### ML-SDRG vs Exact SDRG
 
 ```bash
-python ml_post_processing/ml_sdrg_entropy_ratio.py
+python ml_sdrg_entropy_ratio.py
 ```
 
 ### SDRG-X (finite temperature)
 
 ```bash
-python sdrg_X/sdrgX_entropy.py
-python sdrg_X/plot_entropy_T.py
+python sdrgX_entropy.py
+python plot_entropy_T.py
 ```
 
 ---
