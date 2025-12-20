@@ -42,7 +42,7 @@ pip install -r requirements.txt
 ```
 
 > **Note:** All scripts should be executed from the repository root.
-> We recommend setting:
+> I recommend setting:
 >
 > ```bash
 > export PYTHONPATH=$(pwd)
@@ -100,15 +100,7 @@ python sdrgX_entropy.py
 python plot_entropy_T.py
 ```
 
----
 
-## 📈 Example Results
-
-* ML-SDRG reproduces entanglement entropy scaling obtained from exact SDRG
-* SDRG-X entropy smoothly interpolates with temperature
-* GNN predictions closely track exact SDRG decimation order
-
-(See `ml_post_processing/entropy_results_*`)
 
 ---
 
