@@ -194,7 +194,7 @@ if __name__ == "__main__":
     run_sdrg_entropy_multi_T(
         N=40,
         L=400,
-        alpha=0.8,
+        alpha=3.0,
         T_list=[0.0, 0.005, 0.01, 0.1, 1.0],
         n_disorder=500,
         n_thermal=100

@@ -59,7 +59,7 @@ def build_graph_from_state(positions, J, active):
     return data, edge_list
 
 
-def load_trained_model(sample_data, checkpoint_path="gnn_ml_train/checkpoint.pt"):
+def load_trained_model(sample_data, checkpoint_path="../gnn_ml_train/checkpoint.pt"):
     model = SDRGNet(
         node_dim=sample_data.x.shape[1],
         edge_dim=sample_data.edge_attr.shape[1],
