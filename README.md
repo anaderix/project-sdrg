@@ -16,10 +16,10 @@ The project combines:
 
 
 
-gnn_ml_train/          # GNN model, training, evaluation, dataset generation
-ml_post_processing/   # Comparison of ML-SDRG vs exact SDRG observables
-sdrg_ground_state/    # Exact SDRG ground-state entanglement entropy
-sdrg_X/               # Finite-temperature SDRG-X implementation
+- __gnn_ml_train__/          # GNN model, training, evaluation, dataset generation
+- __ml_post_processing__/   # Comparison of ML-SDRG vs exact SDRG observables
+- __sdrg_ground_state__/    # Exact SDRG ground-state entanglement entropy
+- __sdrg_X__/               # Finite-temperature SDRG-X implementation
 
 
 
