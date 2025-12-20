@@ -1,4 +1,4 @@
-```markdown
+
 # GNN-assisted Strong Disorder Renormalization Group (SDRG)
 
 This repository contains implementations of **exact SDRG**, **SDRG-X**, and a
@@ -14,14 +14,14 @@ The project combines:
 
 ## 📁 Repository Structure
 
-```
+
 
 gnn_ml_train/          # GNN model, training, evaluation, dataset generation
 ml_post_processing/   # Comparison of ML-SDRG vs exact SDRG observables
 sdrg_ground_state/    # Exact SDRG ground-state entanglement entropy
 sdrg_X/               # Finite-temperature SDRG-X implementation
 
-````
+
 
 ---
 
