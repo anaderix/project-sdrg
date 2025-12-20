@@ -67,6 +67,32 @@ python generate_data_train.py
 python train_with_validation.py
 ```
 
+
+## 🔁 Using the Pretrained GNN Model
+
+This repository includes a **pretrained GNN checkpoint** that can be used
+directly, without retraining.
+
+- **Checkpoint file**: `gnn_ml_train/checkpoint.pt`
+- **Model architecture and hyperparameters**:
+  defined in `gnn_ml_train/config.py`
+
+The checkpoint corresponds exactly to the model configuration specified in
+`config.py`. As long as this file is unchanged, the checkpoint can be loaded
+and used for evaluation or inference.
+
+### Load the pretrained model
+
+```python
+from model import SDRGNet
+from checkpoint import load_checkpoint
+from config import MODEL_CONFIG
+
+model = SDRGNet(**MODEL_CONFIG)
+load_checkpoint(model, "checkpoint.pt")
+model.eval()
+
+
 ---
 
 ## 📊 Evaluate & Compare Entanglement Entropy
