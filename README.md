@@ -76,29 +76,8 @@ The checkpoint corresponds exactly to the model configuration specified in
 `config.py`. As long as this file is unchanged, the checkpoint can be loaded
 and used for evaluation or inference.
 
-### Load the pretrained model
-
-```python
-from model import SDRGNet
-from checkpoint import load_checkpoint
-from config import MODEL_CONFIG
-
-model = SDRGNet(**MODEL_CONFIG)
-load_checkpoint(model, "checkpoint.pt")
-model.eval()
-
-
----
 
 ## 📊 Evaluate & Compare Entanglement Entropy
-
-Exact SDRG:
-
-```bash
-cd sdrg_ground_state
-python sdrg_entropy.py
-python plot_entropy.py
-```
 
 ML vs Exact:
 
@@ -106,6 +85,7 @@ ML vs Exact:
 cd ml_post_processing
 python ml_sdrg_entropy_ratio.py
 ```
+
 
 SDRG-X (finite temperature):
 
@@ -143,7 +123,7 @@ If you use this code in academic work, please cite:
 ```
 @software{gnn_sdrg,
   title = {GNN-assisted Strong Disorder Renormalization Group},
-  author = {Javad Vahedi},
+  author = {xxxxx},
   year = {2025}
 }
 ```
