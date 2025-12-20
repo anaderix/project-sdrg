@@ -49,11 +49,6 @@ cd project-sdrg
 
 ```bash
 python -m venv venv
-```
-
-or
-
-```bash
 pip install -r requirements.txt
 ```
 
