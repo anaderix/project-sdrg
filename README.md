@@ -162,10 +162,3 @@ git remote add origin https://github.com/<your-username>/project-sdrg.git
 git push -u origin main
 ```
 
----
-
-## 8️⃣ Optional but *very* good additions
-
-### ✔ `CITATION.cff`
-
-Helps others cite you automatically on GitHub.
