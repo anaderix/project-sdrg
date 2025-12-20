@@ -4,11 +4,11 @@ import json
 import os
 import matplotlib.pyplot as plt
 
-from model import SDRGNet
-from checkpoint import load_checkpoint
+from gnn_ml_train.model import SDRGNet
+from gnn_ml_train.checkpoint import load_checkpoint
 
 # exact SDRG utilities
-from sdrg_entropy import sdrg_pairing
+from sdrg_ground_state.sdrg_entropy import sdrg_pairing
 from utils import initial_couplings, generate_positions
 
 from torch_geometric.data import Data
@@ -59,7 +59,7 @@ def build_graph_from_state(positions, J, active):
     return data, edge_list
 
 
-def load_trained_model(sample_data, checkpoint_path="checkpoint.pt"):
+def load_trained_model(sample_data, checkpoint_path="gnn_ml_train/checkpoint.pt"):
     model = SDRGNet(
         node_dim=sample_data.x.shape[1],
         edge_dim=sample_data.edge_attr.shape[1],

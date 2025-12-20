@@ -16,101 +16,97 @@ The project combines:
 
 
 
-- gnn_ml_train/          # GNN model, training, evaluation, dataset generation
-- ml_post_processing/   # Comparison of ML-SDRG vs exact SDRG observables
-- sdrg_ground_state/    # Exact SDRG ground-state entanglement entropy
-- sdrg_X/               # Finite-temperature SDRG-X implementation
+gnn_ml_train/          # GNN model, training, evaluation, dataset generation
+ml_post_processing/   # Comparison of ML-SDRG vs exact SDRG observables
+sdrg_ground_state/    # Exact SDRG ground-state entanglement entropy
+sdrg_X/               # Finite-temperature SDRG-X implementation
 
 
-
----
-
-## 🔬 Physics Background
-
-- Strong Disorder Renormalization Group (SDRG)
-- Long-range interacting random spin chains
-- Entanglement entropy scaling
-- Finite-temperature SDRG-X
-
-The GNN does **not reduce asymptotic complexity**, but acts as a fast surrogate
-for the bond-selection rule, reducing prefactors and enabling parallelization.
 
 ---
 
 ## 🚀 Getting Started
 
-###  Clone repository
+### 1. Clone repository
 ```bash
 git clone https://github.com/javahedi/project-sdrg.git
 cd project-sdrg
 ````
 
-###  Create environment
+### 2. Create environment
 
 ```bash
 python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+> **Note:** All scripts should be executed from the repository root.
+> We recommend setting:
+>
+> ```bash
+> export PYTHONPATH=$(pwd)
+> ```
+
 ---
 
-## Train the GNN
+## 🧠 Train the GNN (optional)
+
+If you want to retrain the GNN from scratch:
 
 ```bash
 cd gnn_ml_train
-python generate_data_train.py
+python generate_data_train.py   # data generation (see config.py)
 python train_with_validation.py
-```
-
-
-## Using the Pretrained GNN Model
-
-This repository includes a **pretrained GNN checkpoint** that can be used
-directly, without retraining.
-
-- **Checkpoint file**: `gnn_ml_train/checkpoint.pt`
-- **Model architecture and hyperparameters**:
-  defined in `gnn_ml_train/config.py`
-
-The checkpoint corresponds exactly to the model configuration specified in
-`config.py`. As long as this file is unchanged, the checkpoint can be loaded
-and used for evaluation or inference.
-
-
-## 📊 Evaluate & Compare Entanglement Entropy
-
-ML vs Exact:
-
-```bash
-cd ml_post_processing
-python ml_sdrg_entropy_ratio.py
-```
-
-
-SDRG-X (finite temperature):
-
-```bash
-cd sdrg_X
-python sdrgX_entropy.py
-python plot_entropy_T.py
 ```
 
 ---
 
-## 🧪 Tests
+## 🔁 Using the Pretrained GNN Model
+
+A **pretrained GNN checkpoint** is provided and can be used out-of-the-box.
+
+* **Checkpoint**: `gnn_ml_train/checkpoint.pt`
+* **Model architecture & hyperparameters**: `gnn_ml_train/config.py`
+
+The checkpoint is compatible **only** with the model definition specified in
+`config.py`. Modifying the architecture (e.g. hidden dimensions or number of
+layers) requires retraining.
+
+The pretrained model is automatically loaded in the ML-assisted SDRG analysis
+scripts (see below).
+
+---
+
+## 📊 Evaluate & Compare Entanglement Entropy
+
+### Exact SDRG (ground state)
 
 ```bash
-cd gnn_ml_train/tests
-pytest
+python sdrg_ground_state/sdrg_entropy.py
+python sdrg_ground_state/plot_entropy.py
+```
+
+### ML-SDRG vs Exact SDRG
+
+```bash
+python ml_post_processing/ml_sdrg_entropy_ratio.py
+```
+
+### SDRG-X (finite temperature)
+
+```bash
+python sdrg_X/sdrgX_entropy.py
+python sdrg_X/plot_entropy_T.py
 ```
 
 ---
 
 ## 📈 Example Results
 
-* ML-SDRG reproduces entanglement entropy scaling
+* ML-SDRG reproduces entanglement entropy scaling obtained from exact SDRG
 * SDRG-X entropy smoothly interpolates with temperature
-* GNN predictions closely track exact decimation order
+* GNN predictions closely track exact SDRG decimation order
 
 (See `ml_post_processing/entropy_results_*`)
 
@@ -120,11 +116,11 @@ pytest
 
 If you use this code in academic work, please cite:
 
-```
+```bibtex
 @software{gnn_sdrg,
-  title = {GNN-assisted Strong Disorder Renormalization Group},
-  author = {xxxxx},
-  year = {2025}
+  title  = {GNN-assisted Strong Disorder Renormalization Group},
+  author = {xxx},
+  year   = {2025}
 }
 ```
 
@@ -133,33 +129,3 @@ If you use this code in academic work, please cite:
 ## 📝 License
 
 MIT License
-
-````
-
----
-
-## 6️⃣ LICENSE (MIT recommended)
-
-Create `LICENSE`:
-
-```txt
-MIT License
-
-Copyright (c) 2025 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy...
-````
-
----
-
-## 7️⃣ Initialize Git & Push to GitHub
-
-```bash
-git init
-git add .
-git commit -m "Initial commit: GNN-assisted SDRG framework"
-git branch -M main
-git remote add origin https://github.com/<your-username>/project-sdrg.git
-git push -u origin main
-```
-
