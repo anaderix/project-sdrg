@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+
+# PyTorch
+*.pt
+*.pth
+
+# Data & results (keep JSON if you want reproducibility)
+#*.png
+#*.pdf
+#*.npy
+*.json
+
+# OS
+.DS_Store
