@@ -6,7 +6,8 @@ from matplotlib.gridspec import GridSpec
 # --------------------------------------------------
 # Load data
 # --------------------------------------------------
-outdir = "rg_flow_results"
+alpha=2.0
+outdir = f"rg_flow_results_alpha{alpha}"
 
 exact_map = np.load(os.path.join(outdir, "exact_heatmap.npy"))
 ml_map    = np.load(os.path.join(outdir, "ml_heatmap.npy"))
