@@ -39,13 +39,13 @@ for the bond-selection rule, reducing prefactors and enabling parallelization.
 
 ## 🚀 Getting Started
 
-### 1. Clone repository
+###  Clone repository
 ```bash
 git clone https://github.com/javahedi/project-sdrg.git
 cd project-sdrg
 ````
 
-### 2. Create environment
+###  Create environment
 
 ```bash
 python -m venv venv
@@ -59,7 +59,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🧠 Train the GNN
+## Train the GNN
 
 ```bash
 cd gnn_ml_train
@@ -68,7 +68,7 @@ python train_with_validation.py
 ```
 
 
-## 🔁 Using the Pretrained GNN Model
+## Using the Pretrained GNN Model
 
 This repository includes a **pretrained GNN checkpoint** that can be used
 directly, without retraining.
