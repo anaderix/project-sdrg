@@ -3,24 +3,6 @@ import json
 import os
 from utils import generate_positions, initial_couplings
 
-# ============================================================
-# Disorder generation
-# ============================================================
-
-#ef generate_positions(N, L):
-#    """Randomly place N spins on a chain of length L."""
-#    return np.sort(np.random.choice(L, size=N, replace=False))
-
-
-#def initial_couplings(positions, alpha):
-#    """Return dict {(i,j): J_ij}."""
-#    J = {}
-#    N = len(positions)
-#    for i in range(N):
-#        for j in range(i + 1, N):
-#            dist = abs(positions[i] - positions[j])
-#            J[(i, j)] = dist ** (-alpha)
-#   return J
 
 
 # ============================================================
@@ -192,8 +174,8 @@ def run_sdrg_entropy_multi_T(
 
 if __name__ == "__main__":
     run_sdrg_entropy_multi_T(
-        N=40,
-        L=400,
+        N=100,
+        L=1000,
         alpha=3.0,
         T_list=[0.0, 0.005, 0.01, 0.1, 1.0],
         n_disorder=500,
