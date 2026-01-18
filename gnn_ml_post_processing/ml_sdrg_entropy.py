@@ -12,6 +12,7 @@ from sdrg_ground_state.sdrg_entropy import sdrg_pairing
 from utils import initial_couplings, generate_positions
 
 from torch_geometric.data import Data
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 def build_graph_from_state(positions, J, active):
@@ -59,7 +60,7 @@ def build_graph_from_state(positions, J, active):
     return data, edge_list
 
 
-def load_trained_model(sample_data, checkpoint_path="../gnn_ml_train/checkpoint.pt"):
+def load_trained_model(sample_data, checkpoint_path="gnn_ml_train/checkpoint.pt"):
     model = SDRGNet(
         node_dim=sample_data.x.shape[1],
         edge_dim=sample_data.edge_attr.shape[1],
@@ -97,6 +98,74 @@ def ml_sdrg_pairing(positions, J, model):
     return pairs
 
 
+
+
+
+def plot_entropy(S_exact, S_ml, L, outdir, rP_all=None):
+    l = np.arange(1, L + 1)
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+
+    ax.plot(l, S_exact, label="Exact SDRG", linewidth=2)
+    ax.plot(l, S_ml, "--", label="ML-SDRG", linewidth=2)
+
+    ax.set_xlabel(r"$\ell$")
+    ax.set_ylabel(r"$S(\ell)$")
+    ax.legend()
+
+    # ===============================
+    # Inset 1: r_P mean ± std (text)
+    # ===============================
+    if rP_all is not None:
+        rP_mean = np.mean(rP_all)
+        rP_std = np.std(rP_all)
+
+        text = rf"$r_P = {rP_mean:.3f} \pm {rP_std:.3f}$"
+
+        ax.text(
+            0.05, 0.95,
+            text,
+            transform=ax.transAxes,
+            fontsize=11,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="white", alpha=0.8)
+        )
+
+    # ===============================
+    # Inset 2: histogram of r_P
+    # ===============================
+    if rP_all is not None:
+        ax_hist = inset_axes(
+            ax,
+            width="35%",   # relative to parent
+            height="35%",
+            loc="lower center",
+            borderpad=1
+        )
+
+        ax_hist.hist(
+            rP_all,
+            bins=25,
+            density=True,
+            alpha=0.8
+        )
+
+        ax_hist.set_xlabel(r"$r_P$", fontsize=8)
+        ax_hist.set_ylabel("PDF", fontsize=8)
+        ax_hist.tick_params(axis="both", labelsize=8)
+
+        ax_hist.axvline(
+            rP_mean,
+            linestyle="--",
+            linewidth=1
+        )
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(outdir, "entropy_linear.png"), dpi=150)
+    plt.close()
+
+
+
 def entanglement_entropy(pairs, L):
     S = np.zeros(L)
     for l in range(L):
@@ -106,6 +175,9 @@ def entanglement_entropy(pairs, L):
                 crossings += 1
         S[l] = np.log(2) * crossings
     return S
+
+
+
 
 def pairing_accuracy(exact_pairs, ml_pairs):
     def norm(p):
@@ -118,6 +190,10 @@ def pairing_accuracy(exact_pairs, ml_pairs):
     N = 2 * len(exact_pairs)
 
     return 2 * M_P / N
+
+
+
+
 
 def compare_entropy(
     N=80,
@@ -163,9 +239,11 @@ def compare_entropy(
         "n_realizations": n_realizations,
         "r_P_mean": rP_mean,
         "r_P_std": rP_std,
+        "r_P_all": rP_all,          # ← ADD THIS
         "S_exact": S_exact.tolist(),
         "S_ml": S_ml.tolist(),
     }
+
 
     json_path = os.path.join(outdir, "entropy_ml_vs_exact.json")
     with open(json_path, "w") as f:
@@ -174,45 +252,21 @@ def compare_entropy(
     print(f"\nPairing accuracy r_P = {rP_mean:.3f} ± {rP_std:.3f}")
     print(f"Saved entropy data to {json_path}")
 
-    plot_entropy(S_exact, S_ml, L, outdir)
+    plot_entropy(
+    S_exact,
+    S_ml,
+    L,
+    outdir,
+    rP_all=rP_all        # ← THIS WAS MISSING
+)
 
-
-
-
-def plot_entropy(S_exact, S_ml, L, outdir, rP_mean=None, rP_std=None):
-    l = np.arange(1, L + 1)
-
-    plt.figure(figsize=(6, 4))
-    plt.plot(l, S_exact, label="Exact SDRG", linewidth=2)
-    plt.plot(l, S_ml, "--", label="ML-SDRG", linewidth=2)
-    plt.xlabel(r"$\ell$")
-    plt.ylabel(r"$S(\ell)$")
-    plt.legend()
-
-    if rP_mean is not None:
-        text = rf"$r_P = {rP_mean:.3f}$"
-        if rP_std is not None:
-            text = rf"$r_P = {rP_mean:.3f} \pm {rP_std:.3f}$"
-
-        plt.text(
-            0.05, 0.95,
-            text,
-            transform=plt.gca().transAxes,
-            fontsize=11,
-            verticalalignment="top",
-            bbox=dict(boxstyle="round", facecolor="white", alpha=0.8)
-        )
-
-    plt.tight_layout()
-    plt.savefig(os.path.join(outdir, "entropy_linear.png"), dpi=150)
-    plt.close()
 
 
 if __name__ == "__main__":
     compare_entropy(
         N=80,
         L=800,
-        alpha=2.0,
+        alpha=0.5,
         n_realizations=1000
     )
 
