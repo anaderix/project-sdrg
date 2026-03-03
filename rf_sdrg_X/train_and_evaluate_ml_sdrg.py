@@ -60,7 +60,7 @@ TEST_CONFIG = {
 # Evaluation configuration
 EVAL_CONFIG = {
     'baseline_heuristics': ['strongest', 'random'],  # Heuristics to compare
-    'n_disorder_baseline': 100,  # Disorder realizations for baselines
+    'n_disorder_baseline': 500,  # Disorder realizations for baselines
 }
 
 # Output configuration
@@ -310,7 +310,7 @@ def plot_entropy_comparison(results, config, output_file, rP_all=None):
         _border   = plt.rcParams['font.size'] / (_ax_h_px * 72 / fig.dpi)
         _nudge    = 50 / _ax_h_px
         ax_hist = ax.inset_axes((0.325, _border + _nudge, 0.35, 0.35))
-        ax_hist.hist(rP_all, bins=25, density=True, alpha=0.8)
+        ax_hist.hist(rP_all, bins=20, density=True, alpha=0.8)
         ax_hist.axvline(rP_mean, linestyle='--', linewidth=1, color='red')
         ax_hist.set_xlabel(r'$r_P$', fontsize=8)
         ax_hist.set_ylabel('PDF', fontsize=8)
@@ -523,14 +523,230 @@ def main():
         print("="*70)
 
 
+def run_sdrg_entropy_and_rP(simulator, trainer, n_disorder, n_thermal):
+    """
+    Run SDRG and compute both disorder-averaged entropy S(ℓ) and pairing
+    accuracy r_P vs the trained ML model — on the same disorder realizations.
+
+    Symmetric counterpart to run_model_guided_entropy: SDRG is the "main" run
+    (thermal-averaged entropy), ML inference is the comparison (r_P, t=0 only).
+
+    Parameters
+    ----------
+    simulator : SDRG_X_Simulator
+        Configured with heuristic='strongest'
+    trainer : MLTrainer
+        Loaded trained model used for r_P comparison
+    n_disorder : int
+    n_thermal : int
+
+    Returns
+    -------
+    S_avg : np.ndarray, shape (L,)
+    rP_all : list of float
+    """
+    S_all  = []
+    rP_all = []
+
+    for _ in trange(n_disorder, desc="Disorder (SDRG+r_P)", unit="real"):
+        S_thermal = []
+
+        for t in range(n_thermal):
+            simulator.reset()
+            J_init_saved      = simulator.J_init.copy()
+            positions_saved   = simulator.positions.copy()
+
+            # ------ SDRG run (thermal sample) ------
+            pairs_r1_list = []
+            pairs_r2_list = []
+            pairs_s_list  = []
+            sdrg_pairs    = []
+
+            while not simulator.done:
+                action = simulator._select_action_heuristic()
+                _, _, _, info = simulator.step(action=action)
+                if 'pair_positions' in info and 'eigenstate' in info:
+                    r1, r2 = info['pair_positions']
+                    pairs_r1_list.append(r1)
+                    pairs_r2_list.append(r2)
+                    pairs_s_list.append(info['eigenstate'])
+                    if t == 0:
+                        sdrg_pairs.append((r1, r2))
+
+            pairs_r1 = np.array(pairs_r1_list, dtype=np.int64)
+            pairs_r2 = np.array(pairs_r2_list, dtype=np.int64)
+            pairs_s  = np.array(pairs_s_list,  dtype=np.int64)
+            n_pairs  = len(pairs_r1)
+
+            if n_pairs > 0:
+                S = entanglement_entropy_numba(pairs_r1, pairs_r2, pairs_s, n_pairs, simulator.L)
+                S_thermal.append(S)
+
+            # ------ ML replay on same initial state (t=0 only, for r_P) ------
+            if t == 0 and sdrg_pairs:
+                simulator.J_current         = J_init_saved.copy()
+                simulator.positions_current = positions_saved.copy()
+                simulator.active_mask       = np.ones(simulator.N, dtype=bool)
+                simulator.n_remaining       = simulator.N
+                simulator.done              = False
+
+                ml_pairs = []
+                while not simulator.done:
+                    state_flat = simulator.J_current.flatten()
+                    state_flat = np.nan_to_num(state_flat, posinf=1e10, neginf=-1e10, nan=0.0)
+                    action = trainer.model.predict([state_flat])[0]
+                    max_i = action // simulator.N
+                    max_j = action % simulator.N
+                    if max_i >= max_j:
+                        max_i, max_j = max_j, max_i
+                    if (not simulator.active_mask[max_i] or
+                            not simulator.active_mask[max_j] or
+                            simulator.J_current[max_i, max_j] <= 0):
+                        action = simulator._select_action_heuristic()
+                    _, _, _, ml_info = simulator.step(action=action)
+                    if 'pair_positions' in ml_info:
+                        ml_pairs.append(ml_info['pair_positions'])
+
+                if ml_pairs:
+                    rP_all.append(pairing_accuracy(sdrg_pairs, ml_pairs))
+
+        if S_thermal:
+            S_all.append(np.mean(S_thermal, axis=0))
+
+    S_avg = np.mean(S_all, axis=0) if S_all else np.zeros(simulator.L)
+    return S_avg, rP_all
+
+
+def run_only_sdrg(prev_runs_path, model_path=None):
+    """
+    Run only the SDRG ('strongest') simulation and combine with previous results.
+
+    Loads RF-SDRG and Random curves from prev_runs_path, runs the strongest
+    heuristic with TEST_CONFIG parameters (entropy + r_P in one pass if a
+    trained model is available), then plots all three.
+    """
+    print("="*70)
+    print("SDRG-X: SDRG-only run (combining with previous RF/Random results)")
+    print("="*70)
+
+    # Load previous results
+    with open(prev_runs_path) as f:
+        prev = json.load(f)
+
+    prev_methods = prev.get('S_l_by_method', {})
+    results = {}
+
+    for key in ('model', 'random'):
+        if key in prev_methods:
+            results[key] = np.array(prev_methods[key])
+            print(f"  Loaded '{key}' from {prev_runs_path}")
+        else:
+            print(f"  WARNING: '{key}' not found in {prev_runs_path}, skipping")
+
+    rP_all = prev.get('r_P_all', None)
+
+    resolved_model_path = model_path or OUTPUT_CONFIG['model_file']
+
+    if os.path.exists(resolved_model_path):
+        # Combined run: SDRG entropy + r_P on the same disorder realizations
+        print(f"\nRunning SDRG (strongest) + r_P: "
+              f"n_disorder={TEST_CONFIG['n_disorder']}, "
+              f"n_thermal={TEST_CONFIG['n_thermal']}, "
+              f"model={resolved_model_path}")
+        trainer = MLTrainer(model_type='rf')
+        trainer.load_model(resolved_model_path)
+        sim = SDRG_X_Simulator(
+            N=TEST_CONFIG['N'],
+            L=TEST_CONFIG['L'],
+            alpha=TEST_CONFIG['alpha'],
+            T=TEST_CONFIG['T'],
+            n_disorder=1,
+            n_thermal=1,
+            heuristic='strongest',
+        )
+        S_strongest, rP_all = run_sdrg_entropy_and_rP(
+            sim, trainer,
+            n_disorder=TEST_CONFIG['n_disorder'],
+            n_thermal=TEST_CONFIG['n_thermal'],
+        )
+        rP_mean = float(np.mean(rP_all)) if rP_all else float('nan')
+        rP_std  = float(np.std(rP_all))  if rP_all else float('nan')
+        print(f"  ✓ r_P = {rP_mean:.3f} ± {rP_std:.3f}")
+    else:
+        # Fallback: entropy only via fast Numba path, keep old r_P
+        print(f"\n  WARNING: model file '{resolved_model_path}' not found — "
+              f"computing entropy only, keeping r_P from previous run")
+        print(f"\nRunning SDRG (strongest): "
+              f"n_disorder={EVAL_CONFIG['n_disorder_baseline']}, "
+              f"n_thermal={TEST_CONFIG['n_thermal']}...")
+        S_strongest = run_heuristic_entropy(
+            N=TEST_CONFIG['N'],
+            L=TEST_CONFIG['L'],
+            alpha=TEST_CONFIG['alpha'],
+            T=TEST_CONFIG['T'],
+            heuristic='strongest',
+            n_disorder=EVAL_CONFIG['n_disorder_baseline'],
+            n_thermal=TEST_CONFIG['n_thermal'],
+        )
+
+    results['strongest'] = S_strongest
+    print(f"  ✓ SDRG mean={np.mean(S_strongest):.4f}, std={np.std(S_strongest):.4f}")
+
+    # Merge and save combined JSON
+    combined_json = OUTPUT_CONFIG['results_json'].replace('.json', '_combined.json')
+    rP_mean_out = float(np.mean(rP_all)) if rP_all else prev.get('r_P_mean')
+    rP_std_out  = float(np.std(rP_all))  if rP_all else prev.get('r_P_std')
+    combined_data = {
+        'test_config': TEST_CONFIG,
+        'eval_config': EVAL_CONFIG,
+        'source_prev_runs': prev_runs_path,
+        'r_P_mean': rP_mean_out,
+        'r_P_std':  rP_std_out,
+        'r_P_all':  rP_all,
+        'S_l_by_method': {k: v.tolist() for k, v in results.items()},
+        'statistics': {
+            k: {
+                'mean': float(np.mean(v)),
+                'std':  float(np.std(v)),
+                'min':  float(np.min(v)),
+                'max':  float(np.max(v)),
+            }
+            for k, v in results.items()
+        },
+    }
+    with open(combined_json, 'w') as f:
+        json.dump(combined_data, f, indent=2)
+    print(f"\n  ✓ Combined results saved to: {combined_json}")
+
+    # Plot
+    combined_plot = OUTPUT_CONFIG['plot_file'].replace('.png', '_combined.png')
+    plot_entropy_comparison(results, TEST_CONFIG, combined_plot, rP_all=rP_all)
+
+    print("\nSummary:")
+    print(f"  {'Method':<15} {'Mean S(ℓ)':<12} {'Std S(ℓ)':<12}")
+    print("  " + "-"*38)
+    for method, S in results.items():
+        print(f"  {method:<15} {np.mean(S):<12.6f} {np.std(S):<12.6f}")
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="SDRG-X ML training & evaluation")
     parser.add_argument('--just-plot', metavar='RESULT.json',
                         help='Skip computations and regenerate plot from saved JSON')
+    parser.add_argument('--only-sdrg', action='store_true',
+                        help='Run only SDRG (strongest) simulation and combine with --prev-runs')
+    parser.add_argument('--prev-runs', metavar='RESULT.json', default='entropy_results.json',
+                        help='JSON file with previous RF-SDRG and Random results '
+                             '(used with --only-sdrg, default: entropy_results.json)')
+    parser.add_argument('--model', metavar='MODEL.pkl', default=None,
+                        help='Trained RF model for r_P recomputation '
+                             f'(used with --only-sdrg, default: {OUTPUT_CONFIG["model_file"]})')
     args = parser.parse_args()
 
     if args.just_plot:
         plot_from_json(args.just_plot)
+    elif args.only_sdrg:
+        run_only_sdrg(args.prev_runs, model_path=args.model)
     else:
         main()
