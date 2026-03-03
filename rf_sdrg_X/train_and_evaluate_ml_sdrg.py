@@ -636,7 +636,7 @@ def run_only_sdrg(prev_runs_path, model_path=None):
     prev_methods = prev.get('S_l_by_method', {})
     results = {}
 
-    for key in ('model', 'random'):
+    for key in ('model',):
         if key in prev_methods:
             results[key] = np.array(prev_methods[key])
             print(f"  Loaded '{key}' from {prev_runs_path}")
@@ -691,6 +691,22 @@ def run_only_sdrg(prev_runs_path, model_path=None):
 
     results['strongest'] = S_strongest
     print(f"  ✓ SDRG mean={np.mean(S_strongest):.4f}, std={np.std(S_strongest):.4f}")
+
+    # Run random baseline fresh
+    print(f"\nRunning random baseline: "
+          f"n_disorder={EVAL_CONFIG['n_disorder_baseline']}, "
+          f"n_thermal={TEST_CONFIG['n_thermal']}...")
+    S_random = run_heuristic_entropy(
+        N=TEST_CONFIG['N'],
+        L=TEST_CONFIG['L'],
+        alpha=TEST_CONFIG['alpha'],
+        T=TEST_CONFIG['T'],
+        heuristic='random',
+        n_disorder=EVAL_CONFIG['n_disorder_baseline'],
+        n_thermal=TEST_CONFIG['n_thermal'],
+    )
+    results['random'] = S_random
+    print(f"  ✓ Random mean={np.mean(S_random):.4f}, std={np.std(S_random):.4f}")
 
     # Merge and save combined JSON
     combined_json = OUTPUT_CONFIG['results_json'].replace('.json', '_combined.json')
