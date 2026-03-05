@@ -26,8 +26,8 @@ def plot_from_json(json_path, out_png="entropy_replot.png"):
     # ===============================
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    ax.plot(l, S_exact, label="Exact SDRG", linewidth=2)
-    ax.plot(l, S_ml, "--", label="ML-SDRG", linewidth=2)
+    ax.plot(l, S_exact, label="SDRG", linewidth=2, color="blue")
+    ax.plot(l, S_ml, "--", label="GNN-SDRG", linewidth=2, color="orange")
 
     ax.set_xlabel(r"$\ell$")
     ax.set_ylabel(r"$S(\ell)$")
@@ -60,13 +60,16 @@ def plot_from_json(json_path, out_png="entropy_replot.png"):
         rP_all,
         bins=30,
         density=True,
-        alpha=0.8
+        alpha=0.8,
+        #color="gray",
+        #edgecolor="black"
     )
 
     ax_hist.axvline(
         rP_mean,
         linestyle="--",
-        linewidth=1
+        linewidth=1,
+        color="red",
     )
 
     ax_hist.set_xlabel(r"$r_P$", fontsize=8)
