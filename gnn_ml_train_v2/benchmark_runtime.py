@@ -21,7 +21,7 @@ direct runtime acceleration.
 import time
 import csv
 from pathlib import Path
-
+import tracemalloc # For memory profiling (optional, not used in current code)
 import torch
 
 from utils import generate_positions, initial_couplings
@@ -123,6 +123,7 @@ def mean_runtime(fn, *args):
     std = (sum((t - mean) ** 2 for t in times) / len(times)) ** 0.5
 
     return mean, std
+
 
 
 def main():
