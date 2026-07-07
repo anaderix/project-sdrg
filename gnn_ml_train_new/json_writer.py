@@ -1,3 +1,4 @@
+# json_writer.py
 import numpy as np
 
 def build_step_json(J, positions, active_spins, target_edge, k=4):

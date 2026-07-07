@@ -1,0 +1,132 @@
+Feature mode: only_logR
+================================================================================
+
+Generating realization 0
+Generating realization 1
+Generating realization 2
+Generating realization 3
+Generating realization 4
+Generating realization 5
+Generating realization 6
+Generating realization 7
+Generating realization 8
+Generating realization 9
+Generating realization 10
+Generating realization 11
+Generating realization 12
+Generating realization 13
+Generating realization 14
+Generating realization 15
+Generating realization 16
+Generating realization 17
+Generating realization 18
+Generating realization 19
+Generating realization 20
+Generating realization 21
+Generating realization 22
+Generating realization 23
+Generating realization 24
+Generating realization 25
+Generating realization 26
+Generating realization 27
+Generating realization 28
+Generating realization 29
+Generating realization 30
+Generating realization 31
+Generating realization 32
+Generating realization 33
+Generating realization 34
+Generating realization 35
+Generating realization 36
+Generating realization 37
+Generating realization 38
+Generating realization 39
+Generating realization 40
+Generating realization 41
+Generating realization 42
+Generating realization 43
+Generating realization 44
+Generating realization 45
+Generating realization 46
+Generating realization 47
+Generating realization 48
+Generating realization 49
+Generating realization 50
+Generating realization 51
+Generating realization 52
+Generating realization 53
+Generating realization 54
+Generating realization 55
+Generating realization 56
+Generating realization 57
+Generating realization 58
+Generating realization 59
+Generating realization 60
+Generating realization 61
+Generating realization 62
+Generating realization 63
+Generating realization 64
+Generating realization 65
+Generating realization 66
+Generating realization 67
+Generating realization 68
+Generating realization 69
+Generating realization 70
+Generating realization 71
+Generating realization 72
+Generating realization 73
+Generating realization 74
+Generating realization 75
+Generating realization 76
+Generating realization 77
+Generating realization 78
+Generating realization 79
+Generating realization 80
+Generating realization 81
+Generating realization 82
+Generating realization 83
+Generating realization 84
+Generating realization 85
+Generating realization 86
+Generating realization 87
+Generating realization 88
+Generating realization 89
+Generating realization 90
+Generating realization 91
+Generating realization 92
+Generating realization 93
+Generating realization 94
+Generating realization 95
+Generating realization 96
+Generating realization 97
+Generating realization 98
+Generating realization 99
+Epoch 001 | Train loss: 4.1210 | Val acc: 0.200
+  ✓ Best model saved
+Epoch 002 | Train loss: 3.7750 | Val acc: 0.200
+Epoch 003 | Train loss: 3.5857 | Val acc: 0.210
+  ✓ Best model saved
+Epoch 004 | Train loss: 3.4353 | Val acc: 0.215
+  ✓ Best model saved
+Epoch 005 | Train loss: 3.3216 | Val acc: 0.212
+Epoch 006 | Train loss: 3.2531 | Val acc: 0.215
+Epoch 007 | Train loss: 3.1721 | Val acc: 0.225
+  ✓ Best model saved
+Epoch 008 | Train loss: 3.0769 | Val acc: 0.248
+  ✓ Best model saved
+Epoch 009 | Train loss: 2.9962 | Val acc: 0.230
+Epoch 010 | Train loss: 2.9463 | Val acc: 0.238
+Epoch 011 | Train loss: 2.9223 | Val acc: 0.248
+Epoch 012 | Train loss: 2.8954 | Val acc: 0.252
+  ✓ Best model saved
+Epoch 013 | Train loss: 2.8786 | Val acc: 0.232
+Epoch 014 | Train loss: 2.8533 | Val acc: 0.245
+Epoch 015 | Train loss: 2.8418 | Val acc: 0.248
+Epoch 016 | Train loss: 2.8336 | Val acc: 0.262
+  ✓ Best model saved
+Epoch 017 | Train loss: 2.8151 | Val acc: 0.253
+Epoch 018 | Train loss: 2.8051 | Val acc: 0.247
+Epoch 019 | Train loss: 2.7863 | Val acc: 0.250
+Epoch 020 | Train loss: 2.8359 | Val acc: 0.260
+
+Final TEST accuracy: 0.292

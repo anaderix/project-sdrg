@@ -5,44 +5,83 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 def plot_from_json(json_path, out_png="entropy_replot.png"):
-    # ===============================
-    # Load JSON
-    # ===============================
+
     with open(json_path, "r") as f:
         data = json.load(f)
 
     L = data["L"]
-    S_exact = np.array(data["S_exact"])
-    S_ml = np.array(data["S_ml"])
+
+    S_exact_mean = np.array(data["S_exact_mean"])
+    S_exact_sem = np.array(data["S_exact_sem"])
+
+    S_ml_mean = np.array(data["S_ml_mean"])
+    S_ml_sem = np.array(data["S_ml_sem"])
 
     rP_all = np.array(data["r_P_all"])
     rP_mean = data["r_P_mean"]
     rP_std = data["r_P_std"]
+    rP_sem = data["r_P_sem"]
 
-    l = np.arange(1, L + 1)
+    ell = np.arange(1, L + 1)
 
-    # ===============================
-    # Main entropy plot
-    # ===============================
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    ax.plot(l, S_exact, label="SDRG", linewidth=2, color="blue")
-    ax.plot(l, S_ml, "--", label="GNN-SDRG", linewidth=2, color="orange")
+    # ===============================
+    # SDRG
+    # ===============================
+    ax.plot(
+        ell,
+        S_exact_mean,
+        linewidth=2,
+        label="SDRG",
+    )
+
+    ax.fill_between(
+        ell,
+        S_exact_mean - S_exact_sem,
+        S_exact_mean + S_exact_sem,
+        alpha=0.25,
+    )
+
+    # ===============================
+    # GNN-SDRG
+    # ===============================
+    ax.plot(
+        ell,
+        S_ml_mean,
+        "--",
+        linewidth=2,
+        label="GNN-SDRG",
+    )
+
+    ax.fill_between(
+        ell,
+        S_ml_mean - S_ml_sem,
+        S_ml_mean + S_ml_sem,
+        alpha=0.25,
+    )
 
     ax.set_xlabel(r"$\ell$")
     ax.set_ylabel(r"$S(\ell)$")
     ax.legend()
 
     # ===============================
-    # Text inset: mean ± std
+    # Text inset
+    # use STD here because histogram
+    # shows distribution
     # ===============================
     ax.text(
-        0.05, 0.95,
+        0.05,
+        0.95,
         rf"$r_P = {rP_mean:.3f} \pm {rP_std:.3f}$",
         transform=ax.transAxes,
         fontsize=11,
         verticalalignment="top",
-        bbox=dict(boxstyle="round", facecolor="white", alpha=0.85)
+        bbox=dict(
+            boxstyle="round",
+            facecolor="white",
+            alpha=0.85,
+        ),
     )
 
     # ===============================
@@ -53,7 +92,7 @@ def plot_from_json(json_path, out_png="entropy_replot.png"):
         width="35%",
         height="35%",
         loc="center",
-        borderpad=1
+        borderpad=1,
     )
 
     ax_hist.hist(
@@ -61,8 +100,6 @@ def plot_from_json(json_path, out_png="entropy_replot.png"):
         bins=30,
         density=True,
         alpha=0.8,
-        #color="gray",
-        #edgecolor="black"
     )
 
     ax_hist.axvline(
@@ -77,23 +114,28 @@ def plot_from_json(json_path, out_png="entropy_replot.png"):
     ax_hist.tick_params(axis="both", labelsize=8)
     ax_hist.set_xlim(0, 1)
 
-    # ===============================
-    # Save
-    # ===============================
     plt.tight_layout()
     plt.savefig(out_png, dpi=150)
     plt.close()
 
     print(f"Saved figure to {out_png}")
 
+    print(
+        f"r_P = {rP_mean:.4f} ± {rP_std:.4f} (std)"
+    )
 
-if __name__ == "__main__":
-    alpha=2.0
-    plot_from_json(
-        json_path="entropy_ml_vs_exact.json",
-        out_png=f"entropy_linear_alpha{alpha}.png"
+    print(
+        f"r_P = {rP_mean:.4f} ± {rP_sem:.4f} (sem)"
     )
 
 
+if __name__ == "__main__":
 
+    alpha = 2.0
+    N = 80
+    L = 800
 
+    plot_from_json(
+        json_path="entropy_ml_vs_exact.json",
+        out_png=f"entropy_linear_N{N}_L{L}_alpha{alpha}.png",
+    )

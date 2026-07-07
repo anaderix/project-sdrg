@@ -1,0 +1,9 @@
+SDRG-GNN feature ablation experiments
+====================================
+
+full: see logs/full.log
+no_logJ: see logs/no_logJ.log
+no_rel: see logs/no_rel.log
+only_logJ: see logs/only_logJ.log
+only_logR: see logs/only_logR.log
+only_rel: see logs/only_rel.log

@@ -9,13 +9,13 @@ venv/
 .env/
 
 # PyTorch
-*.pt
+#*.pt
 *.pth
 
 # Data & results (keep JSON if you want reproducibility)
-#*.png
+*.png
 #*.pdf
-#*.npy
+*.npy
 *.json
 
 # OS

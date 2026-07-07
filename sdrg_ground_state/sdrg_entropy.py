@@ -114,9 +114,9 @@ def run_sdrg_entropy(
 
 if __name__ == "__main__":
     run_sdrg_entropy(
-        N=100,
-        L=1000,
-        alpha=0.8,
+        N=80,
+        L=800,
+        alpha=2.0,
         n_realizations=1000
     )
 

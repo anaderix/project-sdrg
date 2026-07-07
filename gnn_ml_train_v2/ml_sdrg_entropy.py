@@ -1,19 +1,54 @@
-# ml_sdrg_entropy.py
 import torch
 import numpy as np
 import json
 import os
 import matplotlib.pyplot as plt
 
-from gnn_ml_train.model import SDRGNet
-from gnn_ml_train.checkpoint import load_checkpoint
+from model import SDRGNet
+from checkpoint import load_checkpoint
 
 # exact SDRG utilities
-from sdrg_ground_state.sdrg_entropy import sdrg_pairing
+#from sdrg_ground_state.sdrg_entropy import sdrg_pairing
 from utils import initial_couplings, generate_positions
 
 from torch_geometric.data import Data
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+
+
+def sdrg_pairing(positions, J):
+    """
+    Perform SDRG and return list of singlet pairs
+    as tuples of real-space positions (r_i, r_j).
+    """
+    active = list(range(len(positions)))
+    pairs = []
+
+    J = J.copy()
+
+    while len(active) > 1:
+        # strongest bond
+        i, j = max(
+            [(i, j) for (i, j) in J if i in active and j in active],
+            key=lambda x: J[x]
+        )
+
+        pairs.append((positions[i], positions[j]))
+
+        # remove spins i, j
+        active.remove(i)
+        active.remove(j)
+
+        # remove bonds touching i or j
+        J = {
+            (k, l): v
+            for (k, l), v in J.items()
+            if k in active and l in active
+        }
+
+    return pairs
+
+
 
 
 def build_graph_from_state(positions, J, active):
@@ -267,7 +302,7 @@ if __name__ == "__main__":
     compare_entropy(
         N=80,
         L=800,
-        alpha=0.5,
+        alpha=2.0,
         n_realizations=1000
     )
 
